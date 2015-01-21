@@ -25,18 +25,14 @@
 // #define DEBUG
 // #define SIMULATEDATA
 // #define LOG_MESSAGE_RATE
-#define SENSOR_SERVER
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Ports;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.IO;
-using System.Net.Sockets;
-using System.Net;
 
 using Amqp;
 using Amqp.Framing;
@@ -73,11 +69,6 @@ namespace RaspberryPiGateway
     /// </summary>
     class MainClass
     {
-        // constants
-        const int CONNECTION_RETRIES = 20;
-        const int SLEEP_TIME_BETWEEN_RETRIES = 1000; // 1 sec
-
-
         // Below parameters are read from the app config file
         public static string AppEdgeGateway;
         public static Address AppAMQPAddress;
@@ -123,12 +114,7 @@ namespace RaspberryPiGateway
             // Initialize application by reading configuration file
             if (!InitAppSettings(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), "RaspberryPiGateway.exe")) return -1;
             // Initializa AMQP connection
-            if (!InitAMQPConnection(false))
-            {
-                logger.Error(">>>>>>>>>>>>>>>>>>>>  Failed to connect to service!");
-                // LORENZO: we need to stop here, we cannot send messages!!!
-                //return -1;
-            }
+            if (!InitAMQPConnection(false)) return -1;
 
             // start main routine
             return main.Run();
@@ -164,68 +150,22 @@ namespace RaspberryPiGateway
 
             logger.Info("Initializing connection to Azure Event Hub");
             // Initialize AMQPS connection
-            Amqp.Trace.TraceLevel = Amqp.TraceLevel.Frame;
-
             try
             {
-
-                int step = CONNECTION_RETRIES;
-
-                while (--step > 0)
-                {
-                    connection = null;
-                    Amqp.Trace.TraceLevel = Amqp.TraceLevel.Verbose;
-                    Amqp.Trace.TraceListener += (f, a) =>
-                    {
-                        logger.Error(DateTime.Now.ToString("[hh:ss.fff]") + " " + string.Format(f, a));
-                    };
-                    try
-                    {
-                        logger.Info("Trying to connect to Azure Event Hub - step: {0} . ", CONNECTION_RETRIES - step);
-                        connection = new Connection(AppAMQPAddress);
-
-                        if (connection != null)
-                        {
-                            break;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-
-                        logger.Error("Error connecting to Azure Event Hub : {0}", ex.Message);
-
-                    }
-
-                    Thread.Sleep(SLEEP_TIME_BETWEEN_RETRIES);
-                }
-
-                if (connection != null)
-                {
-                    session = new Session(connection);
-                    sender = new SenderLink(session, "send-link", AppEHTarget);
-                    logger.Info("AMQP connection succeeded");
-                    return true;
-                }
-                else
-                {
-                    logger.Error("AMQP connection retry count exceeded. No connection.");
-                    return false;
-                }
-
+                connection = new Connection(AppAMQPAddress);
+                session = new Session(connection);
+                sender = new SenderLink(session, "send-link", AppEHTarget);
             }
             catch (Exception e)
             {
                 logger.Error("Error connecting to Azure Event Hub: {0}", e.Message);
-                if (sender == null) logger.Error("Cannot create sender");
-                if (session == null) logger.Error("Cannot create session");
-                if (connection == null) logger.Error("Cannot create connection");
                 if (sender != null) sender.Close();
                 if (session != null) session.Close();
                 if (connection != null) connection.Close();
                 return false;
             }
-            logger.Error("Error: unreachable code.");
-            return false;
+            logger.Info("Connection to Azure Event Hub initialized.");
+            return true;
         }
 
         /// <summary>
@@ -252,7 +192,7 @@ namespace RaspberryPiGateway
                 if (appSettings.Count == 0)
                 {
                     // We cannot run without the connection parameters from 
-                    logger.Error("AppSettings is empty.");
+                    logger.Info("AppSettings is empty.");
                     return false;
                 }
                 else
@@ -284,77 +224,11 @@ namespace RaspberryPiGateway
         /// The Thread is monitoring serial ports and loops every 5 seconds
         /// When a new COM port is available, it starts a new listening thread
         /// When a COM port is no longer available, it kills the corresponding thread that has been created previously
-        /// </summary>
+       /// </summary>
         /// <returns>
         /// 0 when thread ends
         /// </returns>
-
-        Thread listeningThread = null;
         public int Run()
-        {
-            int step = CONNECTION_RETRIES;
-
-            Socket client = null;
-            while (--step > 0)
-            {
-                try
-                {
-
-                    logger.Info("Try connecting to device - step: {0} . ", CONNECTION_RETRIES - step);
-
-                    IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-                    IPAddress ipAddress = ipHostInfo.AddressList[0];
-                    IPEndPoint remoteEP = new IPEndPoint(ipAddress, 5000);
-
-                    client = new Socket(
-                        AddressFamily.InterNetwork,
-                        SocketType.Stream,
-                        ProtocolType.Tcp);
-                    client.Connect(remoteEP);
-
-                    if (client.Connected)
-                    {
-                        break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logger.Error("Exception when opening socket:" + ex.StackTrace);
-                    logger.Error("Will retry in 1 second");
-                }
-
-                // wait and try again
-                Thread.Sleep(SLEEP_TIME_BETWEEN_RETRIES);
-            }
-
-            if (client.Connected)
-            {
-                logger.Info(string.Format("Socket connected to {0}", client.RemoteEndPoint.ToString()));
-
-                listeningThread = new Thread(() => SensorDataClient(client));
-                listeningThread.Start();
-
-                logger.Info(string.Format("Reader thread started"));
-                listeningThread.Join();
-                logger.Info("Listening thread terminated. Quitting.");
-            }
-            else
-            {
-                logger.Error("No sensor connection detected. Quitting.");
-            }
-            return 0;
-        }
-
-        /// <summary>
-        /// Main thread of the application
-        /// The Thread is monitoring serial ports and loops every 5 seconds
-        /// When a new COM port is available, it starts a new listening thread
-        /// When a COM port is no longer available, it kills the corresponding thread that has been created previously
-        /// </summary>
-        /// <returns>
-        /// 0 when thread ends
-        /// </returns>
-        public int RunForSerial()
         {
 
 #if LOG_MESSAGE_RATE
@@ -429,19 +303,22 @@ namespace RaspberryPiGateway
         public static void SendAmqpMessage(string valuesJson)
         {
             Message message = new Message();
-            logger.Info("In SendAmqpMessage, string to be sent is:" + valuesJson);
+
             // If there is no value passed as parameter, do nothing
             if (valuesJson == null) return;
+
             try
             {
                 // Deserialize Json message
                 var sample = JsonConvert.DeserializeObject<Dictionary<string, object>>(valuesJson);
                 if (sample == null)
                 {
-                    logger.Error("Error parsing JSON message {0}", valuesJson);
+                    logger.Info("Error parsing JSON message {0}", valuesJson);
                     return;
                 }
+#if DEBUG
                 logger.Info("Parsed data from serial port: {0}", valuesJson);
+#endif
 
                 // Convert JSON data in 'sample' into body of AMQP message
                 // Only data added by gateway is time of message (since sensor may not have clock) 
@@ -491,37 +368,30 @@ namespace RaspberryPiGateway
                 return;
             }
 
-            if (sender != null)
+            // Send to the cloud asynchronously
+            // Obtain handle on AMQP sender-link object
+            if (0 == Interlocked.Exchange(ref sendingMessage, 1))
             {
-                // Send to the cloud asynchronously
-                // Obtain handle on AMQP sender-link object
-                if (0 == Interlocked.Exchange(ref sendingMessage, 1))
+                bool AMQPConnectionIssue = false;
+                try
                 {
-                    bool AMQPConnectionIssue = false;
-                    try
-                    {
-                        // Message send function is asynchronous, we will receive completion info in the SendOutcome function
-                        sender.Send(message, SendOutcome, null);
-                    }
-                    catch (Exception e)
-                    {
-                        // Something went wrong let's try and reset the AMQP connection
-                        logger.Error("Exception while sending AMQP message: {1}", e.Message);
-                        AMQPConnectionIssue = true;
-                    }
-                    Interlocked.Exchange(ref sendingMessage, 0);
-
-                    // If there was an issue with the AMQP connection, try to reset it
-                    while (AMQPConnectionIssue)
-                    {
-                        AMQPConnectionIssue = !InitAMQPConnection(true);
-                        Thread.Sleep(200);
-                    }
+                    // Message send function is asynchronous, we will receive completion info in the SendOutcome function
+                    sender.Send(message, SendOutcome, null);
                 }
-            }
-            else
-            {
-                logger.Info("Did not try to send as AMQP connection not established.");
+                catch (Exception e)
+                {
+                    // Something went wrong let's try and reset the AMQP connection
+                    logger.Error("Exception while sending AMQP message: {1}", e.Message);
+                    AMQPConnectionIssue = true;
+                }
+                Interlocked.Exchange(ref sendingMessage, 0);
+
+                // If there was an issue with the AMQP connection, try to reset it
+                while (AMQPConnectionIssue)
+                {
+                    AMQPConnectionIssue = !InitAMQPConnection(true);
+                    Thread.Sleep(200);
+                }
             }
 
 #if LOG_MESSAGE_RATE
@@ -546,12 +416,11 @@ namespace RaspberryPiGateway
         /// <param name="state"></param>
         public static void SendOutcome(Message message, Outcome outcome, object state)
         {
-            logger.Info("In SendOutcome");
             if (outcome is Accepted)
             {
-                //#if DEBUG
+//#if DEBUG
                 logger.Info("Sent message from {0} at {1}", AppEdgeGateway, message.ApplicationProperties["time"]);
-                //#endif
+//#endif
 #if LOG_MESSAGE_RATE
                 g_messageCount++;
 #endif
@@ -560,75 +429,6 @@ namespace RaspberryPiGateway
             {
                 logger.Error("Error sending message {0} - {1}, outcome {2}", message.ApplicationProperties["time"], message.Properties.Subject, outcome);
                 logger.Error("Error sending to {0} at {1}", AppEHTarget, AppAMQPAddress);
-            }
-        }
-
-        public static void SensorDataClient(Socket client)
-        {
-            StringBuilder jsonBuilder = new StringBuilder();
-            byte[] buffer = new Byte[1024];
-            // Use Regular Expressions (Regex) to parse incoming data, which may contain multiple JSON strings 
-            // USBSPLSOCKET.PY uses "<" and ">" to terminate JSON string at each end, so built Regex to find strings surrounded by angle brackets
-            // You can test Regex extractor against a known string using a variety of online tools, such as http://regexhero.net/tester/ for C#.
-            //Regex dataExtractor = new Regex(@"<(\d+.?\d*)>");
-            Regex dataExtractor = new Regex("<([\\w\\s\\d:\",-{}.]+)>");
-
-            while (MAINSWITCH)
-            {
-                try
-                {
-                    int bytesRec = client.Receive(buffer);
-                    int matchCount = 1;
-                    // Read string from buffer
-                    string data = Encoding.ASCII.GetString(buffer, 0, bytesRec);
-                    //logger.Info("Read string: " + data);
-                    if (data.Length > 0)
-                    {
-                        // Parse string into angle bracket surrounded JSON strings
-                        var matches = dataExtractor.Matches(data);
-                        if (matches.Count >= 1)
-                        {
-                            foreach (Match m in matches)
-                            {
-                                jsonBuilder.Clear();
-                                // Remove angle brackets
-                                //jsonBuilder.Append("{\"dspl\":\"Wensn Digital Sound Level Meter\",\"Subject\":\"sound\",\"DeviceGUID\":\"81E79059-A393-4797-8A7E-526C3EF9D64B\",\"decibels\":");
-                                jsonBuilder.Append(m.Captures[0].Value.Trim().Substring(1, m.Captures[0].Value.Trim().Length - 2));
-                                //jsonBuilder.Append("}");
-                                string jsonString = jsonBuilder.ToString();
-                                //logger.Info("About to call SendAMQPMessage with JSON string: " + jsonString);
-                                SendAmqpMessage(jsonString);
-                                matchCount++;
-                            }
-                        }
-                    }
-                }
-                catch (StackOverflowException ex)
-                {
-                    logger.Error("Stack Overflow while processing data from socket: {0} ", ex.StackTrace);
-                    logger.Error("Closing program...");
-
-                    throw;
-                }
-                catch (OutOfMemoryException ex)
-                {
-                    logger.Error("Stack Overflow while processing data from socket: {0} ", ex.StackTrace);
-                    logger.Error("Closing program...");
-
-                    throw;
-                }
-                catch (SocketException ex)
-                {
-                    logger.Error("Socket exception processing data from socket: {0} ", ex.StackTrace);
-                    logger.Error("Closing Program...");
-
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    logger.Error("Exception processing data from socket: {0} ", ex.StackTrace);
-                    logger.Error("Continuing...");
-                }
             }
         }
 
@@ -684,7 +484,7 @@ namespace RaspberryPiGateway
                             try
                             {
                                 // Show serialPort string that will be sent via AMQP
-                                //logger.Info(valuesJson);
+                                logger.Info(valuesJson);
 
                                 // Send JSON message to the Cloud
                                 SendAmqpMessage(valuesJson);
@@ -755,3 +555,6 @@ namespace RaspberryPiGateway
         }
     }
 }
+
+
+ 
