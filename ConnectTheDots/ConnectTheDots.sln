@@ -1,0 +1,82 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectTheDotsCloudDeploy", "..\Azure\CloudDeploy\ConnectTheDotsCloudDeploy\ConnectTheDotsCloudDeploy.csproj", "{5A2497C7-09B1-4C66-9D45-7F68F4D7628F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectTheDotsWebSite", "..\Azure\WebSite\ConnectTheDotsWebSite\ConnectTheDotsWebSite.csproj", "{2E3E7496-59D5-48BC-909E-207120886E3E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConnectTheDotsGalileo", "..\Devices\DirectlyConnectedDevices\IntelGalileo\ConnectTheDotsGalileo\ConnectTheDotsGalileo.vcxproj", "{FED02A79-C1D8-4D6F-9858-B1CAFB5F5B38}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectTheDotsGadgeteer", "..\Devices\DirectlyConnectedDevices\NETMF\ConnectTheDotsGadgeteer\ConnectTheDotsGadgeteer.csproj", "{A7209A5B-6EDD-4FFE-967A-FB1BA012B02A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspberryPiGateway", "..\Devices\Gateways\RaspberryPi\RaspberryPiGateway\RaspberryPiGateway.csproj", "{C64F14D5-E123-4D4F-BE50-E257B6A36267}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|Win32 = Debug|Win32
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5A2497C7-09B1-4C66-9D45-7F68F4D7628F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A2497C7-09B1-4C66-9D45-7F68F4D7628F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A2497C7-09B1-4C66-9D45-7F68F4D7628F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{5A2497C7-09B1-4C66-9D45-7F68F4D7628F}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{5A2497C7-09B1-4C66-9D45-7F68F4D7628F}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{5A2497C7-09B1-4C66-9D45-7F68F4D7628F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A2497C7-09B1-4C66-9D45-7F68F4D7628F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A2497C7-09B1-4C66-9D45-7F68F4D7628F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{5A2497C7-09B1-4C66-9D45-7F68F4D7628F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{5A2497C7-09B1-4C66-9D45-7F68F4D7628F}.Release|Win32.ActiveCfg = Release|Any CPU
+		{2E3E7496-59D5-48BC-909E-207120886E3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E3E7496-59D5-48BC-909E-207120886E3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E3E7496-59D5-48BC-909E-207120886E3E}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{2E3E7496-59D5-48BC-909E-207120886E3E}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{2E3E7496-59D5-48BC-909E-207120886E3E}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{2E3E7496-59D5-48BC-909E-207120886E3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E3E7496-59D5-48BC-909E-207120886E3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E3E7496-59D5-48BC-909E-207120886E3E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{2E3E7496-59D5-48BC-909E-207120886E3E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{2E3E7496-59D5-48BC-909E-207120886E3E}.Release|Win32.ActiveCfg = Release|Any CPU
+		{FED02A79-C1D8-4D6F-9858-B1CAFB5F5B38}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{FED02A79-C1D8-4D6F-9858-B1CAFB5F5B38}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{FED02A79-C1D8-4D6F-9858-B1CAFB5F5B38}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{FED02A79-C1D8-4D6F-9858-B1CAFB5F5B38}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FED02A79-C1D8-4D6F-9858-B1CAFB5F5B38}.Debug|Win32.Build.0 = Debug|Win32
+		{FED02A79-C1D8-4D6F-9858-B1CAFB5F5B38}.Debug|Win32.Deploy.0 = Debug|Win32
+		{FED02A79-C1D8-4D6F-9858-B1CAFB5F5B38}.Release|Any CPU.ActiveCfg = Release|Win32
+		{FED02A79-C1D8-4D6F-9858-B1CAFB5F5B38}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{FED02A79-C1D8-4D6F-9858-B1CAFB5F5B38}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{FED02A79-C1D8-4D6F-9858-B1CAFB5F5B38}.Release|Win32.ActiveCfg = Release|Win32
+		{FED02A79-C1D8-4D6F-9858-B1CAFB5F5B38}.Release|Win32.Build.0 = Release|Win32
+		{FED02A79-C1D8-4D6F-9858-B1CAFB5F5B38}.Release|Win32.Deploy.0 = Release|Win32
+		{A7209A5B-6EDD-4FFE-967A-FB1BA012B02A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7209A5B-6EDD-4FFE-967A-FB1BA012B02A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7209A5B-6EDD-4FFE-967A-FB1BA012B02A}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{A7209A5B-6EDD-4FFE-967A-FB1BA012B02A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{A7209A5B-6EDD-4FFE-967A-FB1BA012B02A}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{A7209A5B-6EDD-4FFE-967A-FB1BA012B02A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7209A5B-6EDD-4FFE-967A-FB1BA012B02A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7209A5B-6EDD-4FFE-967A-FB1BA012B02A}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{A7209A5B-6EDD-4FFE-967A-FB1BA012B02A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{A7209A5B-6EDD-4FFE-967A-FB1BA012B02A}.Release|Win32.ActiveCfg = Release|Any CPU
+		{C64F14D5-E123-4D4F-BE50-E257B6A36267}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C64F14D5-E123-4D4F-BE50-E257B6A36267}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C64F14D5-E123-4D4F-BE50-E257B6A36267}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C64F14D5-E123-4D4F-BE50-E257B6A36267}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C64F14D5-E123-4D4F-BE50-E257B6A36267}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{C64F14D5-E123-4D4F-BE50-E257B6A36267}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C64F14D5-E123-4D4F-BE50-E257B6A36267}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C64F14D5-E123-4D4F-BE50-E257B6A36267}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C64F14D5-E123-4D4F-BE50-E257B6A36267}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C64F14D5-E123-4D4F-BE50-E257B6A36267}.Release|Win32.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
